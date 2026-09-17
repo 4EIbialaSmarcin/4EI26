@@ -1,273 +1,220 @@
-# Skrypt w stronie i konsola
+# Zmienne, typy i operatory w JavaScript
 
-To **pierwszy** dział JavaScriptu. HTML i CSS są osobnym przedmiotem — tu uczymy się **podpiąć JS** do prostej strony-nośnika, zobaczyć wynik w **konsoli** i na **stronie**, pobrać tekst przez `prompt`.
+Najpierw dział [`01_skrypt_w_stronie`](../01_skrypt_w_stronie/) (plik `script.js`, konsola, `prompt`, wypis na stronę). Tutaj dokładamy **typy**, zamianę tekstu na liczbę i **operatory**.
 
-Bez modelu DOM (`getElementById`, `querySelector`, `createElement`). Bez pętli i bez `if` (to [`03_warunki`](../03_warunki/)). Typy, `Number()` i operatory są w [`02_zmienne_operatory`](../02_zmienne_operatory/). Tutaj: plik `script.js`, `console.log`, **`document.write`**, `prompt`, `let` / `const`.
+To nadal **semestr 1**. Tutoriale używają `document.write` i skryptu w pudełku wyniku — ten sam wzorzec co w dziale 01. Porównań i `if` jeszcze nie ma: są w [`03_warunki`](../03_warunki/).
 
-`document.write` nie jest metodą do gotowych aplikacji (po wczytaniu strony **zamazuje** dokument). Na semestrze 1 jest świadomym skrótem: jeden sposób wypisu, bez tłumaczenia drzewa HTML. Od działu [`06_math`](../06_math/) (semestr 2) wpiszesz tekst do pudełka `#wynik` przez `getElementById` i `textContent`. Pełny DOM (`querySelector`, zdarzenia, `createElement`) jest w semestrze 3.
-
----
-
-## 1. Po co osobny plik `.js`?
-
-Strona to trzy role:
-
-| Język | Rola |
-| ----- | ---- |
-| HTML | struktura (nagłówek, pudełko na wynik) |
-| CSS | wygląd kartki |
-| JavaScript | **zachowanie**: liczy, pyta, wypisuje |
-
-Trzymamy JS w `script.js`, nie w środku HTML, żeby:
-
-- HTML został czytelny,
-- ten sam skrypt dało się podłączyć do innej strony,
-- błędy było widać w konsoli przy konkretnym pliku.
+W praktyce te narzędzia pojawiają się przy każdym prostym liczeniu: bilet, VAT, spalanie, czas pracy, kantor.
 
 ---
 
-## 2. Znacznik `<script>`
+## 1. Zmienne i stałe
 
-### Plik zewnętrzny (tak robimy na zajęciach)
+Dane trzymasz w „pudełkach”. Na zajęciach używamy dwóch słów: `let` i `const`.
 
-```html
-<body>
-  <div class="wynik">
-    <script src="script.js"></script>
-  </div>
-</body>
-```
-
-Skrypt stoi **w pudełku wyniku**. `document.write` dopisuje treść **tam, gdzie jest znacznik** — napis pojawi się w ramce, nie zamiast całego HTML.
-
-- `src` — ścieżka **względem pliku HTML**. `script.js` w tym samym folderze.
-- Znacznik jest **pusty**: nic nie pisz między `<script>` a `</script>`, gdy jest `src`.
-- `type="text/javascript"` jest zbędny w HTML5.
-
-### Skrypt wbudowany (inline)
-
-```html
-<script>
-  console.log("od razu w HTML");
-</script>
-```
-
-Przydaje się na minutę, źle się skaluje. W zadaniach: **osobny `script.js`**.
-
-### `head`, `defer`, `async` (krótko)
-
-Gdy `<script src>` jest w **`<head>`**, przeglądarka może odpalić JS zanim dojdzie do pudełka w `body`. Na semestrze 1 **nie** wstawiasz skryptu do `head`: jest w `body`, w ramce wyniku.
-
-`defer` / `async` / `type="module"` — później. Nie są potrzebne przy tym szablonie.
-
----
-
-## 3. Wypis na stronę: `document.write`
+### `let` — wartość może się zmienić
 
 ```js
-document.write("Działa");
+let imie = "Kasia";
+imie = "Basia"; // to jest w porządku
 ```
 
-Kilka linii — znacznik `<br>` (łamanie linii w HTML):
+Przydaje się, gdy liczba albo napis ma się zmienić w trakcie działania programu (punkty, licznik, kolejna wartość z `prompt`).
+
+### `const` — bez ponownego przypisania
 
 ```js
-document.write("Szkoła: Technikum nr 12<br>Witaj, Ola!");
+const rokUrodzenia = 2000;
+// rokUrodzenia = 2001; // błąd: nie można zmienić stałej
 ```
 
-Albo kilka wywołań pod rząd:
+Domyślnie wybieraj `const`, gdy wartość jest znana i nie będzie przypisana drugi raz (stawka VAT, rok, imię z jednego pytania). `var` to stary sposób — **nie używamy**.
 
-```js
-document.write("Linia 1<br>");
-document.write("Linia 2");
-```
-
-### Zasady, żeby się nie zdziwić
-
-1. **Gdzie stoi `<script>`, tam ląduje tekst.** Dlatego skrypt jest wewnątrz `.wynik`.
-2. **Tylko w trakcie wczytywania strony.** Jeśli `write` poleci później (np. po kliknięciu, gdy dokument już „gotowy”), przeglądarka **wycina całą stronę** i zostawia sam ten napis. Na tych zajęciach skrypt leci od razu przy otwarciu HTML — to jest bezpieczne.
-3. To **nie** jest sposób na produkcyjną witrynę. Semestr 3: znajdź element i zmień jego treść. Semestr 2 (`Math`, `String`) delikatnie do tego wraca.
-
-`document.writeln` dodaje znak nowej linii w źródle HTML; na ekranie i tak zwykle potrzebujesz `<br>`. W zadaniach wystarczy `write`.
+Typowa pomyłka: literówka w nazwie przy drugim użyciu. Konsola pokaże `... is not defined`. Nazwy pisz tak samo za każdym razem.
 
 ---
 
-## 4. Konsola przeglądarki
+## 2. Typy danych
 
-**F12** (albo PPM → „Zbadaj”) → karta **Console**.
+Na początek wystarczą dwa:
 
-Tam widać:
+| Typ | Jak wygląda | Przykład |
+| --- | ----------- | -------- |
+| Napis (`string`) | w cudzysłowie | `"Ala ma kota"` |
+| Liczba (`Number`) | bez cudzysłowu, **kropka** zamiast przecinka | `20`, `3.5` |
 
-- to, co wypiszesz `console.log`,
-- **błędy** (czerwone) z numerem linii w `script.js`.
+Później spotkasz też `boolean` (`true` / `false`) przy warunkach oraz `null` (Anuluj w `prompt`). Na tym dziale nie budujesz jeszcze decyzji — tylko liczysz i sklejasz tekst.
 
-Konsola **nie jest** stroną — uczeń i nauczyciel ją otwierają. Na stronie pokazuj to, co ma zostać; konsola służy do sprawdzenia i debugowania.
+`typeof 20` to `"number"`. `typeof "20"` to `"string"`. Cudzysłów decyduje, czy to liczba do liczenia, czy napis do sklejania.
 
-### Metody `console` (API)
+---
 
-Codziennie:
+## 3. Pułapka `prompt()`
 
-| Metoda | Po co |
-| ------ | ----- |
-| `console.log(x)` | zwykły komunikat; można podać kilka argumentów |
-| `console.info(x)` | jak log (informacja) |
-| `console.warn(x)` | ostrzeżenie (żółte) |
-| `console.error(x)` | błąd (czerwone) — **nie** przerywa skryptu, tylko oznacza |
-| `console.debug(x)` | log „dla dewelopera” (często ukryty, aż włączysz poziom Verbose) |
-| `console.clear()` | czyści konsolę |
-
-Sprawdzenia i liczenie:
-
-| Metoda | Po co |
-| ------ | ----- |
-| `console.assert(warunek, komunikat)` | loguje błąd, **gdy warunek jest fałszywy** |
-| `console.count(etykieta?)` | ile razy tu weszliśmy |
-| `console.countReset(etykieta?)` | zeruje licznik |
-
-Grupowanie i czas:
-
-| Metoda | Po co |
-| ------ | ----- |
-| `console.group(nazwa)` / `groupEnd()` | zwijana grupa logów |
-| `console.groupCollapsed(nazwa)` | grupa od razu zwinięta |
-| `console.time(nazwa)` / `timeEnd(nazwa)` | pomiar ms |
-| `console.timeLog(nazwa)` | pośredni czas, bez zamykania pomiaru |
-| `console.timeStamp(nazwa)` | znacznik na osi wydajności (gdy narzędzie to pokazuje) |
-
-Podgląd danych (przyda się przy tablicach i obiektach, działy 09+):
-
-| Metoda | Po co |
-| ------ | ----- |
-| `console.table(dane)` | tabela z tablicy / obiektu |
-| `console.dir(obiekt)` | lista właściwości |
-| `console.dirxml(węzeł)` | drzewo XML/HTML |
-| `console.trace()` | stos wywołań („jak tu trafiliśmy”) |
-
-Rzadziej: `console.profile` / `profileEnd`.
-
-Na tym dziale **wystarczy** `log`, czasem `warn` / `error` / `clear`.
+`prompt` **zawsze** zwraca tekst. Jeśli pobierzesz `"5"` i dodasz `"5"`, dostaniesz `"55"`, a nie `10`. Operator `+` przy dwóch napisach skleja, a nie dodaje.
 
 ```js
-console.log("Start");
-console.log("Imię:", "Ada");
+const a = prompt("Pierwsza liczba:");
+const b = prompt("Druga liczba:");
+document.write(a + b); // "5" + "5" → "55"
 ```
+
+Dlatego do obliczeń zamieniasz wpis na liczbę **zanim** użyjesz `+`, `-`, `*` albo `/`.
+
+`prompt` i `alert` wstrzymują dalszy kod, tak jak w dziale 01. `console.log` pod `prompt` pojawi się dopiero po zamknięciu okna.
+
+Anuluj zwraca `null`. `Number(null)` to `0` — na nauce zwykle zakładamy, że uczeń coś wpisze.
 
 ---
 
-## 5. Okienka: `alert`, `prompt`, `confirm`
+## 4. Zamiana tekstu na liczbę
 
-| Funkcja | Działanie |
-| ------- | --------- |
-| `alert("tekst")` | komunikat, przycisk OK; **blokuje** stronę aż klikniesz |
-| `prompt("pytanie")` | pole tekstowe; zwraca **string** albo `null` (Anuluj) |
-| `confirm("pytanie")` | OK / Anuluj; zwraca `true` / `false` |
-
-`prompt` **zawsze** daje tekst (`"18"`, nie liczbę `18`). Zamiana na liczbę jest w dziale zmiennych (`Number(...)`).
-
-### Okienko zatrzymuje cały skrypt
-
-`alert`, `prompt` i `confirm` są **synchroniczne**: przeglądarka wstrzymuje dalszy JavaScript (i odświeżanie strony), aż zamkniesz okno. Linia **pod** `prompt` — także `console.log` — nie wykona się wcześniej.
+| Funkcja | Co robi |
+| ------- | ------- |
+| `Number(tekst)` | zamienia cały napis na liczbę (także ułamek) |
+| `parseInt(tekst, 10)` | liczba całkowita; drugi argument `10` to system dziesiętny |
+| `parseFloat(tekst)` | ułamek; zatrzymuje się na pierwszym znaku, który nie pasuje |
 
 ```js
-console.log("przed"); // widać od razu w F12
-const imie = prompt("Imię:");
-console.log("po", imie); // dopiero po OK albo Anuluj
+const tekst = "50";
+const liczba = Number(tekst); // 50
+const zOkna = Number(prompt("Podaj liczbę"));
 ```
 
-Dlatego trudno testować program samą konsolą. Otwierasz F12, a karta stoi na szarym oknie — wygląda to tak, jakby logi „nie działały” albo skrypt się zawiesił. Najpierw zamknij dialog, potem czytaj Console. `console.log` **przed** `prompt` zobaczysz od razu; `console.log` **po** — dopiero po kliknięciu.
+`Number("50zł")` daje `NaN` (Not a Number), bo w napisie jest coś poza liczbą. `parseInt("50zł", 10)` da `50`, bo czyta od początku i się zatrzymuje. Na zajęciach wolimy `Number(...)` na całym wpisie — wtedy widać, że dane są złe.
 
-Na zajęciach wynik i tak pokazuj na stronie (`document.write`; później `textContent`). Konsola jest dodatkiem, nie jedynym sposobem sprawdzenia, czy kod działa.
-
-Gdy `prompt` wejdzie do pętli `while` / `do...while` (np. hasło do skutku), każdy obrót otwiera kolejne okno. To jest w [`04_petle`](../04_petle/teoria/teoria.md).
-
-Na zajęciach: mało `alert` (irytuje). Wynik na stronę przez `write` + ewentualnie `console.log`.
+`NaN` nie jest zwykłym zerem. Każde działanie z `NaN` zostaje `NaN`. Na stronie zobaczysz wtedy „NaN” zamiast wyniku — najczęściej zapomniałeś o `Number` albo ktoś wpisał litery.
 
 ---
 
-## 6. `let` i `const` — pierwsze pudełko
+## 5. Operatory matematyczne
+
+| Operator | Znaczenie | Przykład |
+| -------- | --------- | -------- |
+| `+` | dodawanie liczb **albo** sklejanie napisów | `2 + 2` → `4` |
+| `-` | odejmowanie | `5 - 3` → `2` |
+| `*` | mnożenie | `2 * 3` → `6` |
+| `/` | dzielenie | `10 / 2` → `5` |
+| `%` | reszta z dzielenia (modulo) | `10 % 3` → `1` |
+
+Modulo przydaje się przy parzystości (`liczba % 2`) i przy przeliczaniu minut na godziny (`minuty % 60`). Samo porównanie `=== 0` zostawiasz na dział warunków — tu możesz tylko **wypisać** resztę.
+
+Kolejność jest jak w matematyce: mnożenie i dzielenie przed dodawaniem. Nawiasy `()` wymuszają inną kolejność.
 
 ```js
-const imie = prompt("Podaj imię:");
-let komunikat = "Witaj, " + imie + "!";
+const zNawiasami = (2 + 2) * 2; // 8
+const bezNawiasow = 2 + 2 * 2; // 6
 ```
 
-- **`const`** — nie przypiszesz drugi raz. Domyślnie tak, gdy wartość się nie zmienia.
-- **`let`** — można zmienić później.
-- **`var`** — stary sposób, **nie używamy**.
-
-Łączenie napisów: operator `+`. Cudzysłów to stały tekst; nazwa bez cudzysłowu to zawartość pudełka.
-
-Szczegóły typów — dział 02.
+Typowa pomyłka przy cenie: `netto + vat` bez nawiasu, gdy chcesz najpierw dodać procent. Zapisz wzór na kartce, potem włóż nawiasy wokół tego, co ma się wydarzyć pierwsze.
 
 ---
 
-## 7. Komentarze
+## 6. Formatowanie wyniku i część całkowita
+
+Po obliczeniu ceny, VAT-u albo średniej często chcesz **ładny wypis** (dwa miejsca po kropce) albo **całe minuty / godziny** bez ułamka. W zadaniach tego działu pojawiają się dwa narzędzia: `toFixed` i `Math.floor`.
+
+### `liczba.toFixed(n)` — miejsca po kropce (zwraca napis)
+
+Metoda wywołujesz **na liczbie**. Argument `n` mówi, ile cyfr po kropce zostawić. Wynik to zawsze **string** (napis), nie liczba.
 
 ```js
-// jedna linia — przeglądarka to pomija
+const cena = 19.5;
+document.write(cena.toFixed(2)); // "19.50" — to jest string
 
-/*
-  kilka linii
-*/
+const srednia = (5 + 4 + 3) / 3; // 4
+document.write("Średnia: " + srednia.toFixed(2)); // "4.00"
 ```
 
----
+Do dalszych obliczeń trzymaj zwykłą liczbę; `toFixed` wołaj dopiero przy wypisie na stronę albo do sklejenia z tekstem (cena + `" zł"`, VAT, średnia ocen).
 
-## 8. Typowe błędy w konsoli
+**Po co:** bilety, rachunki, kantor, spalanie — oczekujesz `12.50`, nie `12.5` ani `12.50000001`.
 
-| Komunikat | Częsta przyczyna |
-| --------- | ---------------- |
-| `Uncaught SyntaxError` | literówka, brak cudzysłowu, złe nawiasy |
-| `... is not defined` (`ReferenceError`) | literówka w nazwie zmiennej |
-| `(failed) net::ERR_FILE_NOT_FOUND` przy `script.js` | zła ścieżka `src` (inny folder, inna nazwa) |
-| pusta ramka, konsola czysta | brak `document.write` albo skrypt niepodłączony |
+**Typowa pomyłka:** `cena.toFixed(2) + 1` skleja napis zamiast dodać (`"12.501"`). Najpierw licz na liczbie, na końcu formatuj.
 
-Kliknij plik i numer linii w konsoli — otworzy się źródło.
+### `Math.floor(x)` — w dół do liczby całkowitej
 
----
-
-## 9. Szablon strony na ten kurs
-
-```html
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-  <meta charset="UTF-8">
-  <title>Zadanie</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="card">
-    <h2>Tytuł</h2>
-    <div class="wynik">
-      <script src="script.js"></script>
-    </div>
-  </div>
-</body>
-</html>
-```
-
-`charset="UTF-8"` — polskie znaki.
-
-Przycisk i kliknięcie — semestr 3. Na razie skrypt **sam się uruchamia** przy otwarciu strony (albo czeka na `prompt`).
-
----
-
-## 10. Mini-program (wszystko naraz)
+`Math.floor` obcina część ułamkową **w dół** (największa liczba całkowita nie większa niż `x`). Dla dodatnich: `Math.floor(3.9)` → `3`.
 
 ```js
-const imie = prompt("Jak masz na imię?");
-const tekst = "Witaj, " + imie + "!";
-console.log(tekst);
-document.write(tekst);
+const minuty = 135;
+const godziny = Math.floor(minuty / 60); // 2
+const reszta = minuty % 60; // 15
+
+const cukierki = 10;
+const dzieci = 3;
+const dlaKazdego = Math.floor(cukierki / dzieci); // 3, nie 3.33
 ```
 
-1. Pytanie.  
-2. Złożenie napisu.  
-3. Ślad w konsoli.  
-4. To samo na stronie (w ramce, bo tam stoi `<script>`).
+Resztę po pełnych jednostkach dajesz przez `%` (minuty po godzinach, dni po tygodniach).
+
+**Po co:** czas pracy, przelicznik tygodni, „ile pełnych sztuk mieści się w …” — pół cukierka nie oddasz.
+
+**Typowa pomyłka:** samo dzielenie bez `Math.floor` — na stronie pojawia się ułamek, choć sensowny wynik to liczba całkowita.
+
+### Zapowiedź: `Math.ceil` i `Math.round`
+
+W dziale [`06_math`](../06_math/) poznasz pełniej `Math.ceil` (zaokrąglenie w górę) i `Math.round` (do najbliższej całkowitej). Na tym dziale wystarczy `floor` + `toFixed`: pierwsze daje liczbę całkowitą do liczenia, drugie — napis do ładnego wypisu.
+
+---
+
+## 7. Operatory skrócone
+
+Działają tylko na **liczbach** już zapisanych w zmiennej `let` (nie na `const`).
+
+| Zapis | Znaczenie |
+| ----- | --------- |
+| `x++` | zwiększ o 1 (po użyciu wartości) |
+| `x--` | zmniejsz o 1 |
+| `x += 5` | to samo co `x = x + 5` |
+| `x -= 2` | to samo co `x = x - 2` |
+| `x *= 2` | pomnóż i zapisz |
+| `x /= 2` | podziel i zapisz |
+
+Na tym dziale wystarczy `+=` i `++`. `++` przed nazwą (`++x`) zwiększa najpierw — na start unikaj tej wersji, żeby nie pomylić kolejności.
+
+---
+
+## 8. Łączenie napisów
+
+Żeby złożyć zdanie ze stałego tekstu i zmiennej, używasz `+`.
+
+```js
+const imie = "Adam";
+document.write("Witaj " + imie + ", miło Cię widzieć!");
+```
+
+Spacja musi być **w cudzysłowie**, inaczej słowa zleją się w jedno. Kilka linii w ramce: znacznik `"<br>"` w napisie, tak jak w dziale 01.
+
+Grawisy (`` `Witaj ${imie}` ``) istnieją, ale na początek zostajemy przy `+`.
+
+---
+
+## 9. Wypis na stronę
+
+Skrypt stoi w pudełku `.wynik`. Tekst z `document.write` ląduje tam, gdzie jest znacznik.
+
+```js
+document.write("Suma: " + suma + "<br>");
+document.write("Iloczyn: " + iloczyn);
+```
+
+Konsola (`console.log`) nie zastępuje ramki — nauczyciel ocenia to, co widać na stronie, chyba że zadanie prosi o konsolę.
+
+Nie używamy `getElementById` — to od działu [`06_math`](../06_math/).
+
+---
+
+## 10. Częste pułapki
+
+1. **`"5" + "5"` → `"55"`** — brak `Number` przed dodawaniem.
+2. **Przecinek w liczbie** — JavaScript chce kropki: `3.5`, nie `3,5`. `Number("3,5")` to `NaN`.
+3. **Dzielenie przez zero** — wynik to `Infinity`. Na stronie zobaczysz to słowo.
+4. **`const` i drugie przypisanie** — błąd w konsoli. Do licznika użyj `let`.
+5. **Nawiasy we wzorze** — VAT, rabat i czas często wymagają nawiasu wokół sumy albo różnicy.
 
 ---
 
 ## 11. Co dalej
 
-[`02_zmienne_operatory`](../02_zmienne_operatory/) — liczby, `Number(prompt)`, operatory. Tamtejsze tutoriale też używają `document.write`.
+[`03_warunki`](../03_warunki/) — porównania (`>=`, `===`) i decyzje (`if`, `else if`, `switch`). Ten sam wypis `document.write`.
